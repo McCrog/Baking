@@ -21,6 +21,12 @@ package com.udacity.baking.utilities;
  */
 
 public class Constants {
+    public static final String RECIPE_WIDGET_ACTION_UPDATE = "com.udacity.baking.action.update";
+    public static final String RECIPE_WIDGET_DATA = "com.udacity.baking.widget.data";
+
+    public static final String APP_PREFERENCES = "BAKING_APP_PREFERENCES";
+    public static final String APP_WIDGET_PREFERENCE = "WIDGET_PREFERENCE";
+
     public static final String RECIPE_ID = "RECIPE_ID";
     public static final String ID_TAG = "ID_TAG";
     public static final String STEP_TAG = "STEP_TAG";

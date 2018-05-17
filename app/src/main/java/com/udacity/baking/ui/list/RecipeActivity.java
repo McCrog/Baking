@@ -20,7 +20,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
@@ -30,6 +30,7 @@ import com.udacity.baking.utilities.InjectorUtils;
 import com.udacity.baking.viewmodel.list.RecipeViewModel;
 import com.udacity.baking.viewmodel.list.RecipeViewModelFactory;
 
+import butterknife.BindInt;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -42,6 +43,8 @@ public class RecipeActivity extends AppCompatActivity
 
     @BindView(R.id.recipes_recycle_view)
     RecyclerView mRecyclerView;
+    @BindInt(R.integer.recipe_list_columns)
+    int mNumberOfColumns;
 
     private RecipeAdapter mRecipeAdapter;
     private RecipeViewModel mViewModel;
@@ -56,7 +59,8 @@ public class RecipeActivity extends AppCompatActivity
 
         ButterKnife.bind(this);
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, mNumberOfColumns);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
 
         mRecipeAdapter = new RecipeAdapter(getApplicationContext(), this);
         mRecyclerView.setAdapter(mRecipeAdapter);
@@ -80,29 +84,6 @@ public class RecipeActivity extends AppCompatActivity
 
         mViewModel.getRecipes().observe(this, recipes -> {
             mRecipeAdapter.setData(recipes);
-//            for (Recipe r : recipes) {
-//                List<Ingredient> ingredients = r.getIngredients();
-//                List<Step> steps = r.getSteps();
-//
-//                Log.e(LOG_TAG, "*******" + r.getId() + "\n"
-//                + r.getName() + "\n"
-//                + r.getServings() + "\n"
-//                + r.getImage() + "\n");
-//
-//                for (Ingredient i : ingredients) {
-//                    Log.e(LOG_TAG, "*******" + i.getQuantity() + "\n"
-//                            + i.getMeasure() + "\n"
-//                            + i.getIngredient() + "\n");
-//                }
-//
-//                for (Step s : steps) {
-//                    Log.e(LOG_TAG, "*******" + s.getId() + "\n"
-//                            + s.getShortDescription() + "\n"
-//                            + s.getDescription() + "\n"
-//                            + s.getVideoURL() + "\n"
-//                            + s.getThumbnailURL() + "\n");
-//                }
-//            }
         });
     }
 }

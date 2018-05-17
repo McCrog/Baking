@@ -31,9 +31,11 @@ import com.udacity.baking.model.Recipe;
 import com.udacity.baking.utilities.InjectorUtils;
 import com.udacity.baking.viewmodel.detail.DetailViewModel;
 import com.udacity.baking.viewmodel.detail.DetailViewModelFactory;
+import com.udacity.baking.widget.WidgetService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static com.udacity.baking.utilities.Constants.ID_TAG;
 
@@ -43,14 +45,13 @@ import static com.udacity.baking.utilities.Constants.ID_TAG;
 
 public class RecipeDetailMasterListFragment extends Fragment {
 
-    private static final String LOG_TAG = RecipeDetailMasterListFragment.class.getSimpleName();
-
     @BindView(R.id.ingredients_recycle_view)
     RecyclerView mIngredientsRecyclerView;
     @BindView(R.id.steps_recycle_view)
     RecyclerView mStepsRecyclerView;
 
-    private static int mId = 0;
+    private int mId = 0;
+    private Recipe mRecipe;
     
     private MasterListIngredientAdapter mIngredientAdapter;
     private MasterListStepAdapter mStepAdapter;
@@ -102,11 +103,17 @@ public class RecipeDetailMasterListFragment extends Fragment {
         return rootView;
     }
 
+    @OnClick(R.id.add_to_widget_buton)
+    public void addRecipetoWidget() {
+        WidgetService.startActionUpdateRecipeWidgets(getContext(), mRecipe);
+    }
+
     private void initObserver() {
         DetailViewModelFactory mFactory = InjectorUtils.provideDetailViewModelFactory(this.getContext(), mId);
         DetailViewModel mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
 
         mViewModel.getRecipe().observe(this, recipe -> {
+            mRecipe = recipe;
             setData(recipe);
         });
     }

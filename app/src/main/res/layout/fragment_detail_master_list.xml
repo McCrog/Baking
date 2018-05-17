@@ -25,6 +25,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/add_to_widget_buton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_8dp"
+            android:text="Add to widget" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

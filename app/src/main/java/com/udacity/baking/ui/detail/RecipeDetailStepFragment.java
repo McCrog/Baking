@@ -18,16 +18,19 @@ package com.udacity.baking.ui.detail;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -74,14 +77,14 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     @BindView(R.id.player_view)
     PlayerView mPlayerView;
 
-    private static int mId = 0;
-    private static int mStepIndex = 0;
+    private int mId = 0;
+    private int mStepIndex = 0;
 
     private long playbackPosition;
     private boolean playbackReady = true;
     private int currentWindow;
-    private static final String PLAYER_POSITION = "playback_position";
-    private static final String PLAYBACK_READY = "playback_ready";
+    private static final String PLAYER_POSITION = "PLAYER_POSITION";
+    private static final String PLAYBACK_READY = "PLAYBACK_READY";
     private MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
     private SimpleExoPlayer mExoPlayer;
@@ -152,85 +155,6 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
         }
     }
 
-    private void initObserver() {
-        DetailViewModelFactory mFactory = InjectorUtils.provideDetailViewModelFactory(this.getContext(), mId);
-        DetailViewModel mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
-
-        mViewModel.getRecipe().observe(this, recipe -> {
-            init(recipe.getSteps().get(mStepIndex));
-        });
-    }
-
-    private void init(Step step) {
-        String description = step.getDescription();
-        mStepDescription.setText(description);
-
-        if (!getResources().getBoolean(R.bool.isTablet)) {
-
-        }
-
-        if (step.getVideoURL() != null && !step.getVideoURL().matches("")) {
-            initializeMediaSession();
-            initializePlayer(Uri.parse(step.getVideoURL()));
-        } else {
-            mPlayerView.setVisibility(View.GONE);
-        }
-    }
-
-    private void initializeMediaSession() {
-        mMediaSession = new MediaSessionCompat(getContext(), LOG_TAG);
-        mMediaSession.setFlags(
-                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mMediaSession.setMediaButtonReceiver(null);
-        mStateBuilder = new PlaybackStateCompat.Builder()
-                .setActions(
-                        PlaybackStateCompat.ACTION_PLAY |
-                                PlaybackStateCompat.ACTION_PAUSE |
-                                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                                PlaybackStateCompat.ACTION_PLAY_PAUSE);
-        mMediaSession.setPlaybackState(mStateBuilder.build());
-        mMediaSession.setCallback(new StepSessionCallback());
-        mMediaSession.setActive(true);
-    }
-
-    private void initializePlayer(Uri uri) {
-        if (mExoPlayer == null) {
-            // Create an instance of the ExoPlayer.
-            DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(getContext());
-            TrackSelector trackSelector = new DefaultTrackSelector();
-            LoadControl loadControl = new DefaultLoadControl();
-            mExoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl);
-            mPlayerView.setPlayer(mExoPlayer);
-            mExoPlayer.addListener(this);
-            String userAgent = Util.getUserAgent(getContext(), "RecipeStepVideo");
-
-            MediaSource mediaSource = createMediaSource(getContext(), uri);
-            mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(playbackReady);
-            mExoPlayer.seekTo(currentWindow, playbackPosition);
-        }
-    }
-
-    private MediaSource createMediaSource(Context context, Uri uri) {
-        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
-                Util.getUserAgent(context, context.getPackageName()), bandwidthMeter);
-        ExtractorMediaSource.Factory factory = new ExtractorMediaSource.Factory(dataSourceFactory);
-        factory.createMediaSource(uri);
-        return factory.createMediaSource(uri);
-    }
-
-    private void releasePlayer() {
-        if (mExoPlayer != null) {
-            playbackPosition = mExoPlayer.getCurrentPosition();
-            currentWindow = mExoPlayer.getCurrentWindowIndex();
-            playbackReady = mExoPlayer.getPlayWhenReady();
-            mExoPlayer.release();
-            mExoPlayer = null;
-        }
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -282,7 +206,8 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-
+        mPlayerView.setVisibility(View.GONE);
+        showMessage(getResources().getString(R.string.video_load_error));
     }
 
     @Override
@@ -298,6 +223,112 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     @Override
     public void onSeekProcessed() {
 
+    }
+
+    private void initObserver() {
+        DetailViewModelFactory mFactory = InjectorUtils.provideDetailViewModelFactory(this.getContext(), mId);
+        DetailViewModel mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
+
+        mViewModel.getRecipe().observe(this, recipe -> {
+            initUI(recipe.getSteps().get(mStepIndex));
+        });
+    }
+
+    private void initUI(Step step) {
+        if (step.getVideoURL() != null && !step.getVideoURL().matches("")) {
+            initializeMediaSession();
+            initializePlayer(Uri.parse(step.getVideoURL()));
+
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                    !getResources().getBoolean(R.bool.isTablet)) {
+                hideSystemUI();
+                mStepDescription.setVisibility(View.GONE);
+                mPlayerView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+                mPlayerView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+            } else {
+                mStepDescription.setText(step.getDescription());
+            }
+        } else {
+            mPlayerView.setVisibility(View.GONE);
+
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                    !getResources().getBoolean(R.bool.isTablet)) {
+                hideSystemUI();
+                mStepDescription.setVisibility(View.GONE);
+            } else {
+                mStepDescription.setText(step.getDescription());
+            }
+        }
+    }
+
+    private void hideSystemUI() {
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(
+                          View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE
+        );
+    }
+
+    private void initializeMediaSession() {
+        mMediaSession = new MediaSessionCompat(getContext(), LOG_TAG);
+        mMediaSession.setFlags(
+                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mMediaSession.setMediaButtonReceiver(null);
+        mStateBuilder = new PlaybackStateCompat.Builder().setActions(
+                        PlaybackStateCompat.ACTION_PLAY |
+                        PlaybackStateCompat.ACTION_PAUSE |
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE
+        );
+        mMediaSession.setPlaybackState(mStateBuilder.build());
+        mMediaSession.setCallback(new StepSessionCallback());
+        mMediaSession.setActive(true);
+    }
+
+    private void initializePlayer(Uri uri) {
+        if (mExoPlayer == null) {
+            // Create an instance of the ExoPlayer.
+            DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(getContext());
+            TrackSelector trackSelector = new DefaultTrackSelector();
+            LoadControl loadControl = new DefaultLoadControl();
+            mExoPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl);
+            mPlayerView.setPlayer(mExoPlayer);
+            mExoPlayer.addListener(this);
+
+            MediaSource mediaSource = createMediaSource(getContext(), uri);
+            mExoPlayer.prepare(mediaSource);
+            mExoPlayer.setPlayWhenReady(playbackReady);
+            mExoPlayer.seekTo(currentWindow, playbackPosition);
+        }
+    }
+
+    private MediaSource createMediaSource(Context context, Uri uri) {
+        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
+                Util.getUserAgent(context, context.getPackageName()), bandwidthMeter);
+        ExtractorMediaSource.Factory factory = new ExtractorMediaSource.Factory(dataSourceFactory);
+        factory.createMediaSource(uri);
+        return factory.createMediaSource(uri);
+    }
+
+    private void releasePlayer() {
+        if (mExoPlayer != null) {
+            playbackPosition = mExoPlayer.getCurrentPosition();
+            currentWindow = mExoPlayer.getCurrentWindowIndex();
+            playbackReady = mExoPlayer.getPlayWhenReady();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
+    }
+
+    private void showMessage(String message) {
+        Toast toast = Toast.makeText(getContext(), message, Toast.LENGTH_LONG);
+        toast.show();
     }
 
     private class StepSessionCallback extends MediaSessionCompat.Callback {

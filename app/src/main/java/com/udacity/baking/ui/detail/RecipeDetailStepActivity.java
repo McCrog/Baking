@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.udacity.baking.R;
 
@@ -34,8 +33,6 @@ import static com.udacity.baking.utilities.Constants.STEP_TAG;
 
 public class RecipeDetailStepActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = RecipeDetailStepActivity.class.getSimpleName();
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,13 +42,30 @@ public class RecipeDetailStepActivity extends AppCompatActivity {
         int id = intent.getIntExtra(RECIPE_ID, 0);
         int stepIndex = intent.getIntExtra(STEP_TAG, 0);
 
-        Log.d(LOG_TAG, "Recipe id is: " + id + "\nAnd step index is: " + stepIndex);
+        if (savedInstanceState == null) {
+            Bundle b = new Bundle();
+            b.putInt(RECIPE_ID, id);
+            b.putInt(STEP_TAG, stepIndex);
 
-        RecipeDetailStepFragment stepFragment = RecipeDetailStepFragment.newInstance(id, stepIndex);
-        // Add the fragment to its container using a FragmentManager and a Transaction
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .add(R.id.step_container, stepFragment)
-                .commit();
+            RecipeDetailStepFragment stepFragment = RecipeDetailStepFragment.newInstance(id, stepIndex);
+            // Add the fragment to its container using a FragmentManager and a Transaction
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .add(R.id.step_container, stepFragment)
+                    .commit();
+        }
+
+        boolean mIsTablet = getResources().getBoolean(R.bool.isTablet);
+
+        if (!mIsTablet) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }

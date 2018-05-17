@@ -46,12 +46,24 @@
                 android:value=".ui.list.RecipeActivity" />
         </activity>
 
-        <activity android:name=".ui.detail.RecipeDetailStepActivity" />
+        <activity android:name=".ui.detail.RecipeDetailStepActivity"/>
 
         <provider
             android:name=".data.database.RecipeContentProvider"
             android:authorities="com.udacity.baking"
             android:exported="false"/>
+
+        <receiver android:name=".widget.WidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_info" />
+        </receiver>
+
+        <service android:name=".widget.WidgetService" />
     </application>
 
 </manifest>

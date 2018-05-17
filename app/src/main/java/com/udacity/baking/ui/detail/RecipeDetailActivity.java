@@ -16,19 +16,15 @@
 
 package com.udacity.baking.ui.detail;
 
-import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.udacity.baking.R;
-import com.udacity.baking.utilities.InjectorUtils;
-import com.udacity.baking.viewmodel.detail.DetailViewModel;
-import com.udacity.baking.viewmodel.detail.DetailViewModelFactory;
 
-import static com.udacity.baking.utilities.Constants.ID_TAG;
 import static com.udacity.baking.utilities.Constants.RECIPE_ID;
 import static com.udacity.baking.utilities.Constants.STEP_TAG;
 
@@ -38,16 +34,11 @@ import static com.udacity.baking.utilities.Constants.STEP_TAG;
 
 public class RecipeDetailActivity extends AppCompatActivity implements MasterListStepAdapter.StepOnClickHandler {
 
-    private static final String LOG_TAG = RecipeDetailActivity.class.getSimpleName();
-
-    private DetailViewModel mViewModel;
-    private DetailViewModelFactory mFactory;
-//    private RecipeDetailMasterListFragment recipeDetailMasterListFragment;
-
     // Track whether to display a two-pane or single-pane UI
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
-    private boolean mTwoPane;
-    private int id;
+    private boolean mIsTablet;
+    private int mId;
+    private int mStepIndex;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,51 +46,58 @@ public class RecipeDetailActivity extends AppCompatActivity implements MasterLis
         setContentView(R.layout.activity_detail);
 
         Intent intent = getIntent();
-        id = intent.getIntExtra(RECIPE_ID, 0);
+        mId = intent.getIntExtra(RECIPE_ID, 0);
+        mIsTablet = getResources().getBoolean(R.bool.isTablet);
 
         if (savedInstanceState == null) {
             Bundle b = new Bundle();
-            b.putInt(ID_TAG, id);
+            b.putInt(RECIPE_ID, mId);
 
             RecipeDetailMasterListFragment fragment =
-                    RecipeDetailMasterListFragment.newInstance(id);
+                    RecipeDetailMasterListFragment.newInstance(mId);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_master_list_fragment, fragment)
                     .commit();
-        } else {
-            Log.d(LOG_TAG, "****************** savedInstanceState NOT NULL");
-        }
 
-        // Determine if you're creating a two-pane or single-pane display
-        if (findViewById(R.id.step_constraint_layout) != null) {
-            // This LinearLayout will only initially exist in the two-pane tablet case
-            mTwoPane = true;
-            // TODO (3) Add implementation for step info
-        } else {
-            // We're in single-pane mode and displaying fragments on a phone in separate activities
-            mTwoPane = false;
+            // Determine if you're creating a two-pane or single-pane display
+            if (mIsTablet) {
+                RecipeDetailStepFragment stepFragment = RecipeDetailStepFragment.newInstance(mId, mStepIndex);
+                // Add the fragment to its container using a FragmentManager and a Transaction
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .add(R.id.step_container, stepFragment)
+                        .commit();
+
+            }
         }
     }
 
-    private void initObserver() {
-        mFactory = InjectorUtils.provideDetailViewModelFactory(this.getApplicationContext(), id);
-        mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
-
-        mViewModel.getRecipe().observe(this, recipes -> {
-            Log.d(LOG_TAG, recipes.getName());
-        });
+    public static Intent getDetailIntent(Context packageContext, int id) {
+        Intent intent = new Intent(packageContext, RecipeDetailActivity.class);
+        intent.putExtra(RECIPE_ID, id);
+        return intent;
     }
 
     @Override
     public void onStepClick(int position) {
-        Bundle b = new Bundle();
-        b.putInt(STEP_TAG, position);
-        b.putInt(RECIPE_ID, id);
+        if (mIsTablet) {
+            mStepIndex = position;
+            RecipeDetailStepFragment stepFragment = RecipeDetailStepFragment.newInstance(mId, mStepIndex);
+            // Add the fragment to its container using a FragmentManager and a Transaction
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.step_container, stepFragment)
+                    .commit();
+        } else {
+            Bundle b = new Bundle();
+            b.putInt(STEP_TAG, position);
+            b.putInt(RECIPE_ID, mId);
 
-        // Attach the Bundle to an intent
-        final Intent intent = new Intent(this, RecipeDetailStepActivity.class);
-        intent.putExtras(b);
+            // Attach the Bundle to an intent
+            final Intent intent = new Intent(this, RecipeDetailStepActivity.class);
+            intent.putExtras(b);
 
-        startActivity(intent);
+            startActivity(intent);
+        }
     }
 }
