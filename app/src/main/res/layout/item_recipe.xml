@@ -41,7 +41,7 @@
 
         <TextView
             android:id="@+id/recipe_card_view_name_tv"
-            style="@android:style/TextAppearance.Small"
+            style="@android:style/TextAppearance.Large"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
-            tools:text="servings" />
+            android:text="@string/servings_format"/>
 
         <TextView
             android:id="@+id/recipe_card_view_image_tv"

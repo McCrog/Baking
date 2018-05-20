@@ -67,7 +67,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
         holder.mId.setText(String.valueOf(recipe.getId()));
         holder.mName.setText(recipe.getName());
-        holder.mServings.setText(String.valueOf(recipe.getServings()));
+        holder.mServings.setText(mContext.getString(R.string.servings_format, recipe.getServings()));
         holder.mImage.setText(recipe.getImage());
     }
 
