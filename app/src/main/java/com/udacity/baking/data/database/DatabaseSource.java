@@ -97,8 +97,8 @@ public class DatabaseSource {
                 RecipeEntry.CONTENT_URI_RECIPE
         );
 
-        Recipe Recipe;
-        MutableLiveData<Recipe> RecipeLiveData = new MutableLiveData<>();
+        Recipe recipe;
+        MutableLiveData<Recipe> recipeLiveData = new MutableLiveData<>();
 
         // Recipes
         if (recipeCursor.moveToFirst()) {
@@ -145,12 +145,12 @@ public class DatabaseSource {
             }
             stepsCursor.close();
 
-            Recipe = new Recipe(recipeId, name, ingredients, steps, servings, image);
-            RecipeLiveData.postValue(Recipe);
+            recipe = new Recipe(recipeId, name, ingredients, steps, servings, image);
+            recipeLiveData.postValue(recipe);
         }
         recipeCursor.close();
 
-        return RecipeLiveData;
+        return recipeLiveData;
     }
 
     public void deleteRecipe(int id) {
@@ -288,12 +288,12 @@ public class DatabaseSource {
 
     private Cursor queryData(String clause, String args, Uri uri) {
         String selectionClause = clause + " =?";
-        String[] stepsSelectionArgs = {args};
+        String[] selectionArgs = {args};
         return mContentResolver.query(
                 uri,
                 null,
                 selectionClause,
-                stepsSelectionArgs,
+                selectionArgs,
                 null
         );
     }

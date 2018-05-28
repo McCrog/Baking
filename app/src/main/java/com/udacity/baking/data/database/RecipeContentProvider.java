@@ -83,47 +83,26 @@ public class RecipeContentProvider extends ContentProvider {
 
         switch (match) {
             case RECIPES:
-//                cursor =  db.query(RecipeEntry.TABLE_RECIPES,
-//                        projection,
-//                        selection,
-//                        selectionArgs,
-//                        null,
-//                        null,
-//                        sortOrder);
                 cursor = queryItems(db, RecipeEntry.TABLE_RECIPES, projection, selection, selectionArgs, sortOrder);
                 break;
             case RECIPES_WITH_ID:
                 String id = uri.getPathSegments().get(1);
+                String recipeSelection = "recipe_id=?";
+                String[] recipeSelectionArgs = new String[]{id};
 
-                String mSelection = "recipe_id=?";
-                String[] mSelectionArgs = new String[]{id};
-
-                cursor = db.query(RecipeEntry.TABLE_RECIPES,
-                        projection,
-                        mSelection,
-                        mSelectionArgs,
-                        null,
-                        null,
-                        sortOrder);
+                cursor = queryItems(db, RecipeEntry.TABLE_RECIPES, projection, recipeSelection, recipeSelectionArgs, sortOrder);
                 break;
             case INGREDIENTS:
-//                cursor =  db.query(IngredientsEntry.TABLE_INGREDIENTS,
-//                        projection,
-//                        selection,
-//                        selectionArgs,
-//                        null,
-//                        null,
-//                        sortOrder);
                 cursor = queryItems(db, IngredientsEntry.TABLE_INGREDIENTS, projection, selection, selectionArgs, sortOrder);
                 break;
+            case INGREDIENTS_WITH_ID:
+                String ingridientId = uri.getPathSegments().get(1);
+                String ingridientSelection = "recipe_id_key=?";
+                String[] ingridientSelectionArgs = new String[]{ingridientId};
+
+                cursor = queryItems(db, IngredientsEntry.TABLE_INGREDIENTS, projection, ingridientSelection, ingridientSelectionArgs, sortOrder);
+                break;
             case STEPS:
-//                cursor =  db.query(StepsEntry.TABLE_STEPS,
-//                        projection,
-//                        selection,
-//                        selectionArgs,
-//                        null,
-//                        null,
-//                        sortOrder);
                 cursor = queryItems(db, StepsEntry.TABLE_STEPS, projection, selection, selectionArgs, sortOrder);
                 break;
             default:

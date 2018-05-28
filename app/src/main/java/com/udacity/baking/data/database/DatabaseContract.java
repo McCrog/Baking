@@ -24,7 +24,7 @@ import android.provider.BaseColumns;
  * Created by McCrog on 02/04/2018.
  */
 
-class DatabaseContract {
+public class DatabaseContract {
     static final String AUTHORITY = "com.udacity.baking";
     private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
@@ -48,8 +48,8 @@ class DatabaseContract {
         static final String RECIPE_IMAGE = "image";
     }
 
-    static final class IngredientsEntry implements BaseColumns {
-        static final Uri CONTENT_URI_INGREDIENTS = BASE_CONTENT_URI.buildUpon()
+    public static final class IngredientsEntry implements BaseColumns {
+        public static final Uri CONTENT_URI_INGREDIENTS = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_INGREDIENTS).build();
 
         static final String CONTENT_LIST_TYPE_INGREDIENTS
@@ -58,10 +58,10 @@ class DatabaseContract {
                 = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + AUTHORITY + PATH_INGREDIENTS;
 
         static final String TABLE_INGREDIENTS = "ingredients";
-        static final String INGREDIENTS_QUANTITY = "quantity";
-        static final String INGREDIENTS_MEASURE = "measure";
-        static final String INGREDIENTS_INGREDIENT = "ingredient";
-        static final String RECIPE_ID_KEY = "recipe_id_key";
+        public static final String INGREDIENTS_QUANTITY = "quantity";
+        public static final String INGREDIENTS_MEASURE = "measure";
+        public static final String INGREDIENTS_INGREDIENT = "ingredient";
+        public static final String RECIPE_ID_KEY = "recipe_id_key";
     }
 
     static final class StepsEntry implements BaseColumns {

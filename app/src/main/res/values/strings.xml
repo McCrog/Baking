@@ -18,6 +18,8 @@
     <string name="app_name">Baking</string>
     <string name="title_activity_detail">Recipe Detail</string>
     <string name="ingredients">Ingredients</string>
+    <string name="steps">Steps</string>
     <string name="servings_format">Serving for %1$d person</string>
     <string name="video_load_error">The video could not be loaded. Check your Internet connection.</string>
+    <string name="add_ingredients_button_text">Add ingredients to the widget</string>
 </resources>

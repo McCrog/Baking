@@ -14,13 +14,37 @@
   ~ limitations under the License.
   -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/recipe_widget_ingredient_item_tv"
+    android:id="@+id/recipe_widget_ingredient_linear_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="@dimen/margin_8dp"
-    android:layout_marginRight="@dimen/margin_8dp"
-    android:layout_marginTop="@dimen/margin_8dp"
-    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-    tools:text="Ingredient item" />
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="@dimen/margin_8dp">
+
+    <TextView
+        android:id="@+id/recipe_widget_ingredient_item_tv"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        tools:text="cream" />
+
+    <TextView
+        android:id="@+id/recipe_widget_quantity_item_tv"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        tools:text="2" />
+
+    <TextView
+        android:id="@+id/recipe_widget_measure_item_tv"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="@dimen/margin_4dp"
+        tools:text="CUP" />
+
+</LinearLayout>

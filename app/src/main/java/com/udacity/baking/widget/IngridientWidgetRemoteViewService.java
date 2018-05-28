@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.udacity.baking.utilities;
+package com.udacity.baking.widget;
+
+import android.content.Intent;
+import android.widget.RemoteViewsService;
 
 /**
- * Created by alex on 13/05/2018.
+ * Created by alex on 20/05/2018.
  */
 
-public class Constants {
-    public static final String APP_PREFERENCES = "BAKING_APP_PREFERENCES";
-    public static final String APP_WIDGET_PREFERENCE = "WIDGET_PREFERENCE";
-    public static final String APP_WIDGET_RECIPE_NAME = "APP_WIDGET_RECIPE_NAME";
-
-    public static final String RECIPE_ID = "RECIPE_ID";
-    public static final String ID_TAG = "ID_TAG";
-    public static final String STEP_TAG = "STEP_TAG";
+public class IngridientWidgetRemoteViewService extends RemoteViewsService {
+    @Override
+    public RemoteViewsFactory onGetViewFactory(Intent intent) {
+        return new IngridientWidgetRemoteViewsFactory(this.getApplicationContext());
+    }
 }

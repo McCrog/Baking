@@ -31,7 +31,7 @@ import com.udacity.baking.model.Recipe;
 import com.udacity.baking.utilities.InjectorUtils;
 import com.udacity.baking.viewmodel.detail.DetailViewModel;
 import com.udacity.baking.viewmodel.detail.DetailViewModelFactory;
-import com.udacity.baking.widget.WidgetService;
+import com.udacity.baking.widget.CollectionAppWidgetProvider;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -96,6 +96,8 @@ public class RecipeDetailMasterListFragment extends Fragment {
 
         mIngredientsRecyclerView.setAdapter(mIngredientAdapter);
         mStepsRecyclerView.setAdapter(mStepAdapter);
+        mIngredientsRecyclerView.setNestedScrollingEnabled(false);
+        mIngredientsRecyclerView.setNestedScrollingEnabled(false);
 
         initObserver();
 
@@ -105,7 +107,9 @@ public class RecipeDetailMasterListFragment extends Fragment {
 
     @OnClick(R.id.add_to_widget_buton)
     public void addRecipetoWidget() {
-        WidgetService.startActionUpdateRecipeWidgets(getContext(), mRecipe);
+        CollectionAppWidgetProvider.sendRefreshBroadcast(getContext());
+        InjectorUtils.provideAppPreferences(getContext()).saveWidgetPreference(mId);
+//        InjectorUtils.provideAppPreferences(getContext()).saveRecipeName(mRecipe.getName());
     }
 
     private void initObserver() {
