@@ -22,4 +22,5 @@
     <string name="servings_format">Serving for %1$d person</string>
     <string name="video_load_error">The video could not be loaded. Check your Internet connection.</string>
     <string name="add_ingredients_button_text">Add ingredients to the widget</string>
+    <string name="empty_string">The ingredients list is empty</string>
 </resources>

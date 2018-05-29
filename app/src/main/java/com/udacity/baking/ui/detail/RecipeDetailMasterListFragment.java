@@ -109,7 +109,7 @@ public class RecipeDetailMasterListFragment extends Fragment {
     public void addRecipetoWidget() {
         CollectionAppWidgetProvider.sendRefreshBroadcast(getContext());
         InjectorUtils.provideAppPreferences(getContext()).saveWidgetPreference(mId);
-//        InjectorUtils.provideAppPreferences(getContext()).saveRecipeName(mRecipe.getName());
+        InjectorUtils.provideAppPreferences(getContext()).saveRecipeName(mRecipe.getName());
     }
 
     private void initObserver() {
