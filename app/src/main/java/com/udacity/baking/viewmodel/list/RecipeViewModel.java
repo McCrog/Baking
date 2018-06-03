@@ -44,4 +44,8 @@ public class RecipeViewModel extends ViewModel {
     public LiveData<List<Recipe>> getRecipes() {
         return mRecipe;
     }
+
+    public void updateData() {
+        mRepository.updateData();
+    }
 }

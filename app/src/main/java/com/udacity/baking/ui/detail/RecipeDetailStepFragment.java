@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,7 @@ import static com.udacity.baking.utilities.Constants.STEP_TAG;
  * Created by alex on 12/05/2018.
  */
 
-public class RecipeDetailStepFragment extends Fragment implements Player.EventListener {
+public class RecipeDetailStepFragment extends Fragment implements Player.EventListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String LOG_TAG = RecipeDetailStepFragment.class.getSimpleName();
 
@@ -77,8 +78,12 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     @BindView(R.id.player_view)
     PlayerView mPlayerView;
 
+    @BindView(R.id.refresh_step)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     private int mId = 0;
     private int mStepIndex = 0;
+    private Step mStep;
 
     private long playbackPosition;
     private boolean playbackReady = true;
@@ -128,6 +133,8 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
         ButterKnife.bind(this, rootView);
 
         initObserver();
+
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         // Return the root view
         return rootView;
@@ -206,7 +213,7 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-        mPlayerView.setVisibility(View.GONE);
+        //mPlayerView.setVisibility(View.GONE);
         showMessage(getResources().getString(R.string.video_load_error));
     }
 
@@ -230,8 +237,24 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
         DetailViewModel mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
 
         mViewModel.getRecipe().observe(this, recipe -> {
-            initUI(recipe.getSteps().get(mStepIndex));
+            mStep = recipe.getSteps().get(mStepIndex);
+            initUI(mStep);
         });
+    }
+
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        releasePlayer();
+        initUI(mStep);
+
+        mSwipeRefreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }, 3000);
     }
 
     private void initUI(Step step) {

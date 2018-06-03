@@ -84,11 +84,17 @@ public class Repository {
         return mDatabaseSource.getRecipe(id);
     }
 
+    public void updateData() {
+        mInitialized = false;
+        initializeData();
+    }
+
     private void startFetchDataFromNetwork() {
         mNetworkDataSource.fetchRecipes();
 
         LiveData<List<Recipe>> networkData = mNetworkDataSource.getData();
         networkData.observeForever(newForecastsFromNetwork -> {
+            deleteOldDatabaseData();
             mDatabaseSource.saveRecipes(newForecastsFromNetwork);
             startFetchDataFromDb();
             Log.e(LOG_TAG, "New values inserted");

@@ -19,6 +19,7 @@ package com.udacity.baking.ui.list;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +38,7 @@ import butterknife.ButterKnife;
 import static com.udacity.baking.utilities.Constants.RECIPE_ID;
 
 public class RecipeActivity extends AppCompatActivity
-        implements RecipeAdapter.OnClickHandler {
+        implements RecipeAdapter.OnClickHandler, SwipeRefreshLayout.OnRefreshListener {
 
     private static final String LOG_TAG = RecipeActivity.class.getSimpleName();
 
@@ -45,6 +46,9 @@ public class RecipeActivity extends AppCompatActivity
     RecyclerView mRecyclerView;
     @BindInt(R.integer.recipe_list_columns)
     int mNumberOfColumns;
+
+    @BindView(R.id.refresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     private RecipeAdapter mRecipeAdapter;
     private RecipeViewModel mViewModel;
@@ -62,6 +66,8 @@ public class RecipeActivity extends AppCompatActivity
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, mNumberOfColumns);
         mRecyclerView.setLayoutManager(gridLayoutManager);
 
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+
         mRecipeAdapter = new RecipeAdapter(getApplicationContext(), this);
         mRecyclerView.setAdapter(mRecipeAdapter);
 
@@ -76,6 +82,20 @@ public class RecipeActivity extends AppCompatActivity
         intent.putExtra(RECIPE_ID, mViewModel.getRecipes().getValue().get(index).getId());
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        mViewModel.updateData();
+
+        mSwipeRefreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }, 3000);
     }
 
     private void initObserver() {
