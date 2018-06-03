@@ -65,10 +65,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public void onBindViewHolder(RecipeViewHolder holder, int position) {
         Recipe recipe = mRecipe.get(position);
 
-        holder.mId.setText(String.valueOf(recipe.getId()));
         holder.mName.setText(recipe.getName());
-        holder.mServings.setText(mContext.getString(R.string.servings_format, recipe.getServings()));
-        holder.mImage.setText(recipe.getImage());
+        holder.mIngredients.setText(mContext.getString(R.string.ingredients_format, recipe.getIngredients().size()));
+        holder.mSteps.setText(mContext.getString(R.string.steps_format, recipe.getSteps().size()));
+        holder.mServings.setText(String.valueOf(recipe.getServings()));
     }
 
     @Override
@@ -83,14 +83,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     }
 
     class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.recipe_card_view_id_tv)
-        TextView mId;
         @BindView(R.id.recipe_card_view_name_tv)
         TextView mName;
+        @BindView(R.id.recipe_card_view_ingredients_tv)
+        TextView mIngredients;
+        @BindView(R.id.recipe_card_view_steps_tv)
+        TextView mSteps;
         @BindView(R.id.recipe_card_view_servings_tv)
         TextView mServings;
-        @BindView(R.id.recipe_card_view_image_tv)
-        TextView mImage;
 
         public RecipeViewHolder(View itemView) {
             super(itemView);

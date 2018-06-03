@@ -23,7 +23,7 @@
     android:layout_margin="@dimen/margin_4dp"
     android:foreground="?android:attr/selectableItemBackground"
     card_view:cardCornerRadius="@dimen/margin_4dp"
-    card_view:cardElevation="@dimen/margin_8dp">
+    card_view:cardElevation="@dimen/margin_2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,7 +37,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:text="cream"/>
+            android:fontFamily="@font/abhaya_libre"
+            tools:text="cream" />
 
         <TextView
             android:id="@+id/ingredient_card_view_quantity_tv"
@@ -45,16 +46,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            tools:text="2"/>
+            android:fontFamily="@font/abhaya_libre"
+            tools:text="2" />
 
         <TextView
             android:id="@+id/ingredient_card_view_measure_tv"
             style="@style/Base.TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_4dp"
             android:layout_gravity="center_vertical"
-            tools:text="CUP"/>
+            android:layout_marginStart="@dimen/margin_4dp"
+            android:fontFamily="@font/abhaya_libre"
+            tools:text="CUP" />
 
     </LinearLayout>
 

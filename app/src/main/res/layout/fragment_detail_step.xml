@@ -17,9 +17,9 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/step_constraint_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/step_constraint_layout">
+    android:layout_height="match_parent">
 
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/player_view"
@@ -35,11 +35,13 @@
 
     <TextView
         android:id="@+id/step_description_tv"
+        style="@android:style/TextAppearance.Medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_8dp"
         android:layout_marginEnd="@dimen/margin_8dp"
         android:layout_marginStart="@dimen/margin_8dp"
+        android:fontFamily="@font/abhaya_libre"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_view"

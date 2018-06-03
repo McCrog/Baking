@@ -29,6 +29,7 @@
             android:id="@+id/add_to_widget_buton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/abhaya_libre"
             android:padding="@dimen/margin_8dp"
             android:text="@string/add_ingredients_button_text" />
 
@@ -36,6 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_16dp"
+            android:fontFamily="@font/abril_fatface"
             android:text="@string/ingredients"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
@@ -50,6 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_16dp"
+            android:fontFamily="@font/abril_fatface"
             android:text="@string/steps"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
