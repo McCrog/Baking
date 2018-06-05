@@ -16,6 +16,7 @@
 
 package com.udacity.baking.ui.detail;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +25,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.udacity.baking.R;
+import com.udacity.baking.utilities.InjectorUtils;
+import com.udacity.baking.viewmodel.detail.DetailViewModel;
+import com.udacity.baking.viewmodel.detail.DetailViewModelFactory;
 
 import static com.udacity.baking.utilities.Constants.RECIPE_ID;
 import static com.udacity.baking.utilities.Constants.STEP_TAG;
@@ -37,8 +41,8 @@ public class RecipeDetailActivity extends AppCompatActivity implements MasterLis
     // Track whether to display a two-pane or single-pane UI
     // A single-pane display refers to phone screens, and two-pane to larger tablet screens
     private boolean mIsTablet;
-    private int mId;
-    private int mStepIndex;
+    private int mId = 0;
+    private int mStepIndex = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,6 +52,8 @@ public class RecipeDetailActivity extends AppCompatActivity implements MasterLis
         Intent intent = getIntent();
         mId = intent.getIntExtra(RECIPE_ID, 0);
         mIsTablet = getResources().getBoolean(R.bool.isTablet);
+
+        initObserver();
 
         if (savedInstanceState == null) {
             Bundle b = new Bundle();
@@ -99,5 +105,14 @@ public class RecipeDetailActivity extends AppCompatActivity implements MasterLis
 
             startActivity(intent);
         }
+    }
+
+    private void initObserver() {
+        DetailViewModelFactory mFactory = InjectorUtils.provideDetailViewModelFactory(getApplicationContext(), mId);
+        DetailViewModel mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
+
+        mViewModel.getRecipe().observe(this, recipe -> {
+            getSupportActionBar().setTitle(recipe.getName());
+        });
     }
 }

@@ -24,7 +24,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.udacity.baking.R;
@@ -42,15 +41,12 @@ import static com.udacity.baking.utilities.Constants.RECIPE_ID;
 public class RecipeActivity extends AppCompatActivity
         implements RecipeAdapter.OnClickHandler, SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String LOG_TAG = RecipeActivity.class.getSimpleName();
-
     @BindView(R.id.recipes_recycle_view)
     RecyclerView mRecyclerView;
-    @BindInt(R.integer.recipe_list_columns)
-    int mNumberOfColumns;
-
     @BindView(R.id.refresh)
     SwipeRefreshLayout mSwipeRefreshLayout;
+    @BindInt(R.integer.recipe_list_columns)
+    int mNumberOfColumns;
 
     private RecipeAdapter mRecipeAdapter;
     private RecipeViewModel mViewModel;
@@ -79,8 +75,6 @@ public class RecipeActivity extends AppCompatActivity
 
     @Override
     public void onClick(int index) {
-        Log.d(LOG_TAG, "Click on item #" + index);
-
         Intent intent = new Intent(this, RecipeDetailActivity.class);
         intent.putExtra(RECIPE_ID, mViewModel.getRecipes().getValue().get(index).getId());
 

@@ -22,6 +22,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.Guideline;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -77,7 +78,8 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     TextView mStepDescription;
     @BindView(R.id.player_view)
     PlayerView mPlayerView;
-
+    @BindView(R.id.horizontal_half)
+    Guideline mGuideline;
     @BindView(R.id.refresh_step)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -98,7 +100,7 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     public RecipeDetailStepFragment() {
     }
 
-    public static RecipeDetailStepFragment newInstance (int id, int stepIndex) {
+    public static RecipeDetailStepFragment newInstance(int id, int stepIndex) {
         RecipeDetailStepFragment fragment = new RecipeDetailStepFragment();
         // Set the bundle arguments for the fragment.
         Bundle arguments = new Bundle();
@@ -166,11 +168,13 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         if (mExoPlayer != null) {
             playbackPosition = mExoPlayer.getCurrentPosition();
             playbackReady = mExoPlayer.getPlayWhenReady();
             currentWindow = mExoPlayer.getCurrentWindowIndex();
         }
+
         outState.putLong(PLAYER_POSITION, playbackPosition);
         outState.putBoolean(PLAYBACK_READY, playbackReady);
     }
@@ -214,7 +218,8 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-        mSnackbar = Snackbar.make(getActivity().findViewById(R.id.refresh_step), R.string.video_error, Snackbar.LENGTH_INDEFINITE);
+        mSnackbar = Snackbar.make(getActivity().findViewById(R.id.refresh_step),
+                                R.string.video_error, Snackbar.LENGTH_INDEFINITE);
         mSnackbar.setAction(R.string.retry, snackbarOnClickListener);
         mSnackbar.setActionTextColor(getResources().getColor(R.color.lightRed));
         mSnackbar.show();
@@ -268,12 +273,18 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     }
 
     private void initUI(Step step) {
-        if (step.getVideoURL() != null && !step.getVideoURL().matches("")) {
-            initializeMediaSession();
-            initializePlayer(Uri.parse(step.getVideoURL()));
+        if (step.getVideoURL() != null && !step.getVideoURL().matches("") ||
+                step.getThumbnailURL() != null && !step.getThumbnailURL().matches("")) {
+            String url = step.getVideoURL();
 
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                    !getResources().getBoolean(R.bool.isTablet)) {
+            if (step.getThumbnailURL() != null && !step.getThumbnailURL().matches("")) {
+                url = step.getThumbnailURL();
+            }
+
+            initializeMediaSession();
+            initializePlayer(Uri.parse(url));
+
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 hideSystemUI();
                 mStepDescription.setVisibility(View.GONE);
                 mPlayerView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -283,21 +294,16 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
             }
         } else {
             mPlayerView.setVisibility(View.GONE);
+            mGuideline.setGuidelinePercent(0);
 
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                    !getResources().getBoolean(R.bool.isTablet)) {
-                hideSystemUI();
-                mStepDescription.setVisibility(View.GONE);
-            } else {
-                mStepDescription.setText(step.getDescription());
-            }
+            mStepDescription.setText(step.getDescription());
         }
     }
 
     private void hideSystemUI() {
         ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
         getActivity().getWindow().getDecorView().setSystemUiVisibility(
-                          View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -313,7 +319,7 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
                         MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mMediaSession.setMediaButtonReceiver(null);
         mStateBuilder = new PlaybackStateCompat.Builder().setActions(
-                        PlaybackStateCompat.ACTION_PLAY |
+                PlaybackStateCompat.ACTION_PLAY |
                         PlaybackStateCompat.ACTION_PAUSE |
                         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
                         PlaybackStateCompat.ACTION_PLAY_PAUSE

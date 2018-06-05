@@ -27,8 +27,9 @@
 
         <Button
             android:id="@+id/add_to_widget_buton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:fontFamily="@font/abhaya_libre"
             android:padding="@dimen/margin_8dp"
             android:text="@string/add_ingredients_button_text" />
