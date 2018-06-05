@@ -89,6 +89,10 @@ public class Repository {
         initializeData();
     }
 
+    public LiveData<Boolean> isError() {
+        return mNetworkDataSource.isError();
+    }
+
     private void startFetchDataFromNetwork() {
         mNetworkDataSource.fetchRecipes();
 

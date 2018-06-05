@@ -19,11 +19,13 @@ package com.udacity.baking.ui.list;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.udacity.baking.R;
 import com.udacity.baking.ui.detail.RecipeDetailActivity;
@@ -52,6 +54,7 @@ public class RecipeActivity extends AppCompatActivity
 
     private RecipeAdapter mRecipeAdapter;
     private RecipeViewModel mViewModel;
+    private Snackbar mSnackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,5 +108,22 @@ public class RecipeActivity extends AppCompatActivity
         mViewModel.getRecipes().observe(this, recipes -> {
             mRecipeAdapter.setData(recipes);
         });
+
+        mViewModel.checkError().observe(this, error -> {
+            if (error) {
+                mSnackbar = Snackbar.make(findViewById(R.id.refresh), R.string.network_error, Snackbar.LENGTH_INDEFINITE);
+                mSnackbar.setAction(R.string.retry, snackbarOnClickListener);
+                mSnackbar.setActionTextColor(getResources().getColor(R.color.lightRed));
+                mSnackbar.show();
+            }
+        });
     }
+
+    View.OnClickListener snackbarOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mSnackbar.dismiss();
+            mViewModel.updateData();
+        }
+    };
 }

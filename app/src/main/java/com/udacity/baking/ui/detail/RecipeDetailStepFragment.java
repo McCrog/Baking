@@ -22,6 +22,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -31,7 +32,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -93,6 +93,7 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     private MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
     private SimpleExoPlayer mExoPlayer;
+    private Snackbar mSnackbar;
 
     public RecipeDetailStepFragment() {
     }
@@ -213,8 +214,10 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-        //mPlayerView.setVisibility(View.GONE);
-        showMessage(getResources().getString(R.string.video_load_error));
+        mSnackbar = Snackbar.make(getActivity().findViewById(R.id.refresh_step), R.string.video_error, Snackbar.LENGTH_INDEFINITE);
+        mSnackbar.setAction(R.string.retry, snackbarOnClickListener);
+        mSnackbar.setActionTextColor(getResources().getColor(R.color.lightRed));
+        mSnackbar.show();
     }
 
     @Override
@@ -232,6 +235,28 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
 
     }
 
+    @Override
+    public void onRefresh() {
+        mSwipeRefreshLayout.setRefreshing(true);
+
+        reinitializePlayer();
+
+        mSwipeRefreshLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }, 3000);
+    }
+
+    View.OnClickListener snackbarOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mSnackbar.dismiss();
+            reinitializePlayer();
+        }
+    };
+
     private void initObserver() {
         DetailViewModelFactory mFactory = InjectorUtils.provideDetailViewModelFactory(this.getContext(), mId);
         DetailViewModel mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
@@ -240,21 +265,6 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
             mStep = recipe.getSteps().get(mStepIndex);
             initUI(mStep);
         });
-    }
-
-    @Override
-    public void onRefresh() {
-        mSwipeRefreshLayout.setRefreshing(true);
-
-        releasePlayer();
-        initUI(mStep);
-
-        mSwipeRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
     }
 
     private void initUI(Step step) {
@@ -330,6 +340,11 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
         }
     }
 
+    private void reinitializePlayer() {
+        releasePlayer();
+        initUI(mStep);
+    }
+
     private MediaSource createMediaSource(Context context, Uri uri) {
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
@@ -347,11 +362,6 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
             mExoPlayer.release();
             mExoPlayer = null;
         }
-    }
-
-    private void showMessage(String message) {
-        Toast toast = Toast.makeText(getContext(), message, Toast.LENGTH_LONG);
-        toast.show();
     }
 
     private class StepSessionCallback extends MediaSessionCompat.Callback {

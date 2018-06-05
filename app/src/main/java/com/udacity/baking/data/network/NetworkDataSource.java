@@ -37,7 +37,8 @@ import retrofit2.Response;
 public class NetworkDataSource {
     private static final String LOG_TAG = NetworkDataSource.class.getSimpleName();
 
-    private final MutableLiveData<List<Recipe>> downloadedData;
+    private final MutableLiveData<List<Recipe>> mDownloadedData;
+    private final MutableLiveData<Boolean> mIsError;
     private final NetworkDataApi mNetworkDataApi = NetworkDataService.getNetworkService();
 
     // For Singleton instantiation
@@ -45,7 +46,8 @@ public class NetworkDataSource {
     private static NetworkDataSource sInstance;
 
     private NetworkDataSource() {
-        downloadedData = new MutableLiveData<>();
+        mDownloadedData = new MutableLiveData<>();
+        mIsError = new MutableLiveData<>();
     }
 
     /**
@@ -69,28 +71,24 @@ public class NetworkDataSource {
             @Override
             public void onResponse(@NonNull Call<List<Recipe>> call, @NonNull Response<List<Recipe>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    downloadedData.postValue(response.body());
-
-//                    List<Recipe> tmp = response.body();
-//                    for (Recipe r : tmp) {
-//                        Log.d(LOG_TAG, "" + r.getName());
-//                        Log.d(LOG_TAG, "" + r.getIngredients().size());
-//                        Log.d(LOG_TAG, "" + r.getIngredients().get(0).getIngredient());
-//                        Log.d(LOG_TAG, "" + r.getSteps().size());
-//                        Log.d(LOG_TAG, "" + r.getSteps().get(0).getDescription());
-//                    }
-//                    Log.d(LOG_TAG, "" + response.body());
+                    mDownloadedData.postValue(response.body());
+                    mIsError.postValue(false);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<List<Recipe>> call, @NonNull Throwable t) {
                 Log.e(LOG_TAG, t.toString());
+                mIsError.postValue(true);
             }
         });
     }
 
     public LiveData<List<Recipe>> getData() {
-        return downloadedData;
+        return mDownloadedData;
+    }
+
+    public LiveData<Boolean> isError() {
+        return mIsError;
     }
 }

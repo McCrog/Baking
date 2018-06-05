@@ -32,13 +32,11 @@ import java.util.List;
 public class RecipeViewModel extends ViewModel {
 
     private final LiveData<List<Recipe>> mRecipe;
-
     private final Repository mRepository;
 
     public RecipeViewModel(Repository repository) {
         mRepository = repository;
         mRecipe = mRepository.getRecipes();
-
     }
 
     public LiveData<List<Recipe>> getRecipes() {
@@ -47,5 +45,9 @@ public class RecipeViewModel extends ViewModel {
 
     public void updateData() {
         mRepository.updateData();
+    }
+
+    public LiveData<Boolean> checkError() {
+        return mRepository.isError();
     }
 }
