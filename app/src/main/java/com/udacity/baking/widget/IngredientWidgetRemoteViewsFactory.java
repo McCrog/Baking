@@ -30,15 +30,16 @@ import static com.udacity.baking.data.database.DatabaseContract.IngredientsEntry
 import static com.udacity.baking.data.database.DatabaseContract.IngredientsEntry.INGREDIENTS_QUANTITY;
 
 /**
- * Created by alex on 20/05/2018.
+ * Created by McCrog on 20/05/2018.
+ *
  */
 
-public class IngridientWidgetRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+public class IngredientWidgetRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private Context mContext;
     private Cursor mCursor;
 
-    public IngridientWidgetRemoteViewsFactory(Context context) {
+    public IngredientWidgetRemoteViewsFactory(Context context) {
         mContext = context;
     }
 

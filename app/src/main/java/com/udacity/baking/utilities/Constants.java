@@ -17,7 +17,8 @@
 package com.udacity.baking.utilities;
 
 /**
- * Created by alex on 13/05/2018.
+ * Created by McCrog on 13/05/2018.
+ *
  */
 
 public class Constants {
@@ -28,4 +29,7 @@ public class Constants {
     public static final String RECIPE_ID = "RECIPE_ID";
     public static final String ID_TAG = "ID_TAG";
     public static final String STEP_TAG = "STEP_TAG";
+
+    public static final String PLAYER_POSITION = "PLAYER_POSITION";
+    public static final String PLAYBACK_READY = "PLAYBACK_READY";
 }

@@ -23,7 +23,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Created by alex on 09/05/2018.
+ * Created by McCrog on 09/05/2018.
+ *
  */
 
 public class Ingredient implements Parcelable {

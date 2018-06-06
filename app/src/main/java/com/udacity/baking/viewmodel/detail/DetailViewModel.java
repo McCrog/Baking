@@ -21,21 +21,18 @@ import android.arch.lifecycle.ViewModel;
 
 import com.udacity.baking.data.Repository;
 import com.udacity.baking.model.Recipe;
+import com.udacity.baking.ui.detail.RecipeDetailActivity;
 
 /**
  * Created by McCrog on 09/04/2018.
- * {@link ViewModel} for {@link // TODO (2) Specify class name}
+ * {@link ViewModel} for {@link RecipeDetailActivity}
  */
 public class DetailViewModel extends ViewModel {
 
     private final LiveData<Recipe> mRecipe;
-    private final Repository mRepository;
-    private final int mId;
 
     public DetailViewModel(Repository repository, int id) {
-        mRepository = repository;
-        mId = id;
-        mRecipe = mRepository.getRecipe(mId);
+        mRecipe = repository.getRecipe(id);
     }
 
     public LiveData<Recipe> getRecipe() {

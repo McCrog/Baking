@@ -36,6 +36,7 @@ import static com.udacity.baking.data.database.DatabaseContract.StepsEntry;
 
 /**
  * Created by McCrog on 03/04/2018.
+ *
  */
 
 public class RecipeContentProvider extends ContentProvider {
@@ -96,11 +97,11 @@ public class RecipeContentProvider extends ContentProvider {
                 cursor = queryItems(db, IngredientsEntry.TABLE_INGREDIENTS, projection, selection, selectionArgs, sortOrder);
                 break;
             case INGREDIENTS_WITH_ID:
-                String ingridientId = uri.getPathSegments().get(1);
-                String ingridientSelection = "recipe_id_key=?";
-                String[] ingridientSelectionArgs = new String[]{ingridientId};
+                String ingredientId = uri.getPathSegments().get(1);
+                String ingredientSelection = "recipe_id_key=?";
+                String[] ingridientSelectionArgs = new String[]{ingredientId};
 
-                cursor = queryItems(db, IngredientsEntry.TABLE_INGREDIENTS, projection, ingridientSelection, ingridientSelectionArgs, sortOrder);
+                cursor = queryItems(db, IngredientsEntry.TABLE_INGREDIENTS, projection, ingredientSelection, ingridientSelectionArgs, sortOrder);
                 break;
             case STEPS:
                 cursor = queryItems(db, StepsEntry.TABLE_STEPS, projection, selection, selectionArgs, sortOrder);

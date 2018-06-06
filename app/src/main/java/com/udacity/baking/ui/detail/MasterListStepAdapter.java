@@ -33,7 +33,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by alex on 12/05/2018.
+ * Created by McCrog on 12/05/2018.
+ *
  */
 
 class MasterListStepAdapter extends RecyclerView.Adapter<MasterListStepAdapter.StepViewHolder>{

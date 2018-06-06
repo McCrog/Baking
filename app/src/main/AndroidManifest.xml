@@ -63,7 +63,7 @@
         </receiver>
 
         <service
-            android:name=".widget.IngridientWidgetRemoteViewService"
+            android:name=".widget.IngredientWidgetRemoteViewService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
         <meta-data
             android:name="preloaded_fonts"

@@ -33,7 +33,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * Created by alex on 10/05/2018.
+ * Created by McCrog on 10/05/2018.
+ *
  */
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder> {

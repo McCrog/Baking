@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by alex on 09/05/2018.
+ * Created by McCrog on 09/05/2018.
+ *
  */
 
 public class Recipe implements Parcelable {

@@ -31,7 +31,8 @@ import com.udacity.baking.ui.list.RecipeActivity;
 import com.udacity.baking.utilities.InjectorUtils;
 
 /**
- * Created by alex on 20/05/2018.
+ * Created by McCrog on 20/05/2018.
+ *
  */
 
 public class CollectionAppWidgetProvider extends AppWidgetProvider {
@@ -67,7 +68,7 @@ public class CollectionAppWidgetProvider extends AppWidgetProvider {
     private RemoteViews updateWidgetListView(Context context, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_list_layout);
 
-        Intent intent = new Intent(context, IngridientWidgetRemoteViewService.class);
+        Intent intent = new Intent(context, IngredientWidgetRemoteViewService.class);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
 

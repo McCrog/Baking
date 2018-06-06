@@ -64,15 +64,16 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.udacity.baking.utilities.Constants.ID_TAG;
+import static com.udacity.baking.utilities.Constants.PLAYBACK_READY;
+import static com.udacity.baking.utilities.Constants.PLAYER_POSITION;
 import static com.udacity.baking.utilities.Constants.STEP_TAG;
 
 /**
- * Created by alex on 12/05/2018.
+ * Created by McCrog on 12/05/2018.
+ *
  */
 
 public class RecipeDetailStepFragment extends Fragment implements Player.EventListener, SwipeRefreshLayout.OnRefreshListener {
-
-    private static final String LOG_TAG = RecipeDetailStepFragment.class.getSimpleName();
 
     @BindView(R.id.step_description_tv)
     TextView mStepDescription;
@@ -90,8 +91,6 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     private long playbackPosition;
     private boolean playbackReady = true;
     private int currentWindow;
-    private static final String PLAYER_POSITION = "PLAYER_POSITION";
-    private static final String PLAYBACK_READY = "PLAYBACK_READY";
     private MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
     private SimpleExoPlayer mExoPlayer;
@@ -220,7 +219,7 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     public void onPlayerError(ExoPlaybackException error) {
         mSnackbar = Snackbar.make(getActivity().findViewById(R.id.refresh_step),
                                 R.string.video_error, Snackbar.LENGTH_INDEFINITE);
-        mSnackbar.setAction(R.string.retry, snackbarOnClickListener);
+        mSnackbar.setAction(R.string.retry, snackBarOnClickListener);
         mSnackbar.setActionTextColor(getResources().getColor(R.color.lightRed));
         mSnackbar.show();
     }
@@ -246,15 +245,10 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
 
         reinitializePlayer();
 
-        mSwipeRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
+        mSwipeRefreshLayout.postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 3000);
     }
 
-    View.OnClickListener snackbarOnClickListener = new View.OnClickListener() {
+    private View.OnClickListener snackBarOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             mSnackbar.dismiss();
@@ -313,7 +307,7 @@ public class RecipeDetailStepFragment extends Fragment implements Player.EventLi
     }
 
     private void initializeMediaSession() {
-        mMediaSession = new MediaSessionCompat(getContext(), LOG_TAG);
+        mMediaSession = new MediaSessionCompat(getContext(), RecipeDetailStepFragment.class.getSimpleName());
         mMediaSession.setFlags(
                 MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                         MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);

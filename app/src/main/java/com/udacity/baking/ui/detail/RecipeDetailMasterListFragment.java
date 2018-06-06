@@ -40,7 +40,8 @@ import butterknife.OnClick;
 import static com.udacity.baking.utilities.Constants.ID_TAG;
 
 /**
- * Created by alex on 12/05/2018.
+ * Created by McCrog on 12/05/2018.
+ *
  */
 
 public class RecipeDetailMasterListFragment extends Fragment {
@@ -105,8 +106,8 @@ public class RecipeDetailMasterListFragment extends Fragment {
         return rootView;
     }
 
-    @OnClick(R.id.add_to_widget_buton)
-    public void addRecipetoWidget() {
+    @OnClick(R.id.add_to_widget_button)
+    public void addRecipeToWidget() {
         CollectionAppWidgetProvider.sendRefreshBroadcast(getContext());
         InjectorUtils.provideAppPreferences(getContext()).saveWidgetPreference(mId);
         InjectorUtils.provideAppPreferences(getContext()).saveRecipeName(mRecipe.getName());

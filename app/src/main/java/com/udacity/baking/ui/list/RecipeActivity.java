@@ -19,6 +19,9 @@ package com.udacity.baking.ui.list;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +32,7 @@ import android.view.View;
 import com.udacity.baking.R;
 import com.udacity.baking.ui.detail.RecipeDetailActivity;
 import com.udacity.baking.utilities.InjectorUtils;
+import com.udacity.baking.utilities.RecipeIdlingResource;
 import com.udacity.baking.viewmodel.list.RecipeViewModel;
 import com.udacity.baking.viewmodel.list.RecipeViewModelFactory;
 
@@ -38,8 +42,13 @@ import butterknife.ButterKnife;
 
 import static com.udacity.baking.utilities.Constants.RECIPE_ID;
 
-public class RecipeActivity extends AppCompatActivity
-        implements RecipeAdapter.OnClickHandler, SwipeRefreshLayout.OnRefreshListener {
+/**
+ * Created by McCrog on 12/05/2018.
+ *
+ */
+
+public class RecipeActivity extends AppCompatActivity implements RecipeAdapter.OnClickHandler,
+        SwipeRefreshLayout.OnRefreshListener {
 
     @BindView(R.id.recipes_recycle_view)
     RecyclerView mRecyclerView;
@@ -51,6 +60,22 @@ public class RecipeActivity extends AppCompatActivity
     private RecipeAdapter mRecipeAdapter;
     private RecipeViewModel mViewModel;
     private Snackbar mSnackbar;
+
+    // The Idling Resource which will be null in production.
+    @Nullable
+    private RecipeIdlingResource mIdlingResource;
+
+    /**
+     * Only called from test, creates and returns a new {@link RecipeIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public RecipeIdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new RecipeIdlingResource();
+        }
+        return mIdlingResource;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,33 +112,26 @@ public class RecipeActivity extends AppCompatActivity
 
         mViewModel.updateData();
 
-        mSwipeRefreshLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        }, 3000);
+        mSwipeRefreshLayout.postDelayed(() -> mSwipeRefreshLayout.setRefreshing(false), 3000);
     }
 
     private void initObserver() {
         RecipeViewModelFactory factory = InjectorUtils.provideRecipeActivityViewModelFactory(this.getApplicationContext());
         mViewModel = ViewModelProviders.of(this, factory).get(RecipeViewModel.class);
 
-        mViewModel.getRecipes().observe(this, recipes -> {
-            mRecipeAdapter.setData(recipes);
-        });
+        mViewModel.getRecipes().observe(this, recipes -> mRecipeAdapter.setData(recipes));
 
         mViewModel.checkError().observe(this, error -> {
             if (error) {
                 mSnackbar = Snackbar.make(findViewById(R.id.refresh), R.string.network_error, Snackbar.LENGTH_INDEFINITE);
-                mSnackbar.setAction(R.string.retry, snackbarOnClickListener);
+                mSnackbar.setAction(R.string.retry, snackBarOnClickListener);
                 mSnackbar.setActionTextColor(getResources().getColor(R.color.lightRed));
                 mSnackbar.show();
             }
         });
     }
 
-    View.OnClickListener snackbarOnClickListener = new View.OnClickListener() {
+    private View.OnClickListener snackBarOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             mSnackbar.dismiss();

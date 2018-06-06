@@ -20,12 +20,13 @@ import android.content.Intent;
 import android.widget.RemoteViewsService;
 
 /**
- * Created by alex on 20/05/2018.
+ * Created by McCrog on 20/05/2018.
+ *
  */
 
-public class IngridientWidgetRemoteViewService extends RemoteViewsService {
+public class IngredientWidgetRemoteViewService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return new IngridientWidgetRemoteViewsFactory(this.getApplicationContext());
+        return new IngredientWidgetRemoteViewsFactory(this.getApplicationContext());
     }
 }

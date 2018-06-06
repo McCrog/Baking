@@ -22,6 +22,7 @@ import android.provider.BaseColumns;
 
 /**
  * Created by McCrog on 02/04/2018.
+ *
  */
 
 public class DatabaseContract {

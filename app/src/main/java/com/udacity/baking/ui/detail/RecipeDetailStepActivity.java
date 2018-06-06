@@ -19,12 +19,15 @@ package com.udacity.baking.ui.detail;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.udacity.baking.R;
 import com.udacity.baking.utilities.InjectorUtils;
+import com.udacity.baking.utilities.RecipeIdlingResource;
 import com.udacity.baking.viewmodel.detail.DetailViewModel;
 import com.udacity.baking.viewmodel.detail.DetailViewModelFactory;
 
@@ -32,12 +35,29 @@ import static com.udacity.baking.utilities.Constants.RECIPE_ID;
 import static com.udacity.baking.utilities.Constants.STEP_TAG;
 
 /**
- * Created by alex on 13/05/2018.
+ * Created by McCrog on 13/05/2018.
+ *
  */
 
 public class RecipeDetailStepActivity extends AppCompatActivity {
 
     private int mId = 0;
+
+    // The Idling Resource which will be null in production.
+    @Nullable
+    private RecipeIdlingResource mIdlingResource;
+
+    /**
+     * Only called from test, creates and returns a new {@link RecipeIdlingResource}.
+     */
+    @VisibleForTesting
+    @NonNull
+    public RecipeIdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new RecipeIdlingResource();
+        }
+        return mIdlingResource;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,8 +100,6 @@ public class RecipeDetailStepActivity extends AppCompatActivity {
         DetailViewModelFactory mFactory = InjectorUtils.provideDetailViewModelFactory(getApplicationContext(), mId);
         DetailViewModel mViewModel = ViewModelProviders.of(this, mFactory).get(DetailViewModel.class);
 
-        mViewModel.getRecipe().observe(this, recipe -> {
-            getSupportActionBar().setTitle(recipe.getName());
-        });
+        mViewModel.getRecipe().observe(this, recipe -> getSupportActionBar().setTitle(recipe.getName()));
     }
 }

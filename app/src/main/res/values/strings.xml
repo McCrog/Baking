@@ -19,7 +19,6 @@
     <string name="title_activity_detail">Recipe Detail</string>
     <string name="ingredients">Ingredients</string>
     <string name="steps">Steps</string>
-    <string name="servings_format">Serving for %1$d person</string>
     <string name="ingredients_format">%1$d ingredients</string>
     <string name="steps_format">%1$d steps</string>
     <string name="add_ingredients_button_text">Add ingredients to the widget</string>
