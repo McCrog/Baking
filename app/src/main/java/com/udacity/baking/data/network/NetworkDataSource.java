@@ -68,7 +68,7 @@ public class NetworkDataSource {
         return sInstance;
     }
 
-    public void fetchRecipes() {
+    public void loadListData() {
         mExecutors.networkIO().execute(() -> {
             try {
                 Call<List<Recipe>> recipesCall = mNetworkDataApi.getRecipes();

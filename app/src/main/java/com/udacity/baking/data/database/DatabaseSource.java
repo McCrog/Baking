@@ -60,7 +60,8 @@ public class DatabaseSource {
     private static final int STEPS_THUMB = 4;
 
     private final ContentResolver mContentResolver;
-    private final MutableLiveData<List<Recipe>> mDatabaseData;
+    private final MutableLiveData<List<Recipe>> mDatabaseListData;
+    private final MutableLiveData<Recipe> mDatabaseItemData;
 
     // For Singleton instantiation
     private static final Object LOCK = new Object();
@@ -68,7 +69,8 @@ public class DatabaseSource {
 
     private DatabaseSource(Context context) {
         mContentResolver = context.getContentResolver();
-        mDatabaseData = new MutableLiveData<>();
+        mDatabaseListData = new MutableLiveData<>();
+        mDatabaseItemData = new MutableLiveData<>();
     }
 
     /**
@@ -85,73 +87,12 @@ public class DatabaseSource {
         return sInstance;
     }
 
-    public LiveData<List<Recipe>> getData() {
-        return mDatabaseData;
+    public LiveData<List<Recipe>> getListData() {
+        return mDatabaseListData;
     }
 
-    public LiveData<Recipe> getRecipe(int id) {
-        String idValue = String.valueOf(id);
-
-        Cursor recipeCursor = queryData(
-                RecipeEntry.RECIPE_ID,
-                idValue,
-                RecipeEntry.CONTENT_URI_RECIPE
-        );
-
-        Recipe recipe;
-        MutableLiveData<Recipe> recipeLiveData = new MutableLiveData<>();
-
-        // Recipes
-        if (recipeCursor.moveToFirst()) {
-            Integer recipeId = recipeCursor.getInt(RECIPE_ID);
-            String name = recipeCursor.getString(RECIPE_NAME);
-            Integer servings = recipeCursor.getInt(RECIPE_SERVINGS);
-            String image = recipeCursor.getString(RECIPE_IMAGE);
-
-            // Ingredients
-            List<Ingredient> ingredients = new ArrayList<>();
-
-            Cursor ingredientsCursor = queryData(
-                    IngredientsEntry.RECIPE_ID_KEY,
-                    idValue,
-                    IngredientsEntry.CONTENT_URI_INGREDIENTS
-            );
-
-            while (ingredientsCursor.moveToNext()) {
-                Double quantity = ingredientsCursor.getDouble(INGREDIENTS_QUANTITY);
-                String measure = ingredientsCursor.getString(INGREDIENTS_MEASURE);
-                String ingredient = ingredientsCursor.getString(INGREDIENTS_INGREDIENT);
-
-                ingredients.add(new Ingredient(quantity, measure, ingredient));
-            }
-            ingredientsCursor.close();
-
-            // Steps
-            List<Step> steps = new ArrayList<>();
-
-            Cursor stepsCursor = queryData(
-                    StepsEntry.RECIPE_ID_KEY,
-                    idValue,
-                    StepsEntry.CONTENT_URI_STEPS
-            );
-
-            while (stepsCursor.moveToNext()) {
-                Integer stepId = stepsCursor.getInt(STEPS_ID);
-                String shortDescription = stepsCursor.getString(STEPS_SHORT_DESCRIP);
-                String description = stepsCursor.getString(STEPS_DESCRIP);
-                String videoURL = stepsCursor.getString(STEPS_VIDEO);
-                String thumbnailURL = stepsCursor.getString(STEPS_THUMB);
-
-                steps.add(new Step(stepId, shortDescription, description, videoURL, thumbnailURL));
-            }
-            stepsCursor.close();
-
-            recipe = new Recipe(recipeId, name, ingredients, steps, servings, image);
-            recipeLiveData.postValue(recipe);
-        }
-        recipeCursor.close();
-
-        return recipeLiveData;
+    public LiveData<Recipe> getItemData() {
+        return mDatabaseItemData;
     }
 
     public void deleteRecipe(int id) {
@@ -224,7 +165,7 @@ public class DatabaseSource {
         return isExist;
     }
 
-    public void loadData() {
+    public void loadListData() {
         List<Recipe> recipes = new ArrayList<>();
 
         Cursor recipeCursor = mContentResolver.query(RecipeEntry.CONTENT_URI_RECIPE,
@@ -284,7 +225,67 @@ public class DatabaseSource {
             recipes.add(new Recipe(id, name, ingredients, steps, servings, image));
         }
         recipeCursor.close();
-        mDatabaseData.setValue(recipes);
+        mDatabaseListData.postValue(recipes);
+    }
+
+    public void loadItemData(int id) {
+        String idValue = String.valueOf(id);
+
+        Cursor recipeCursor = queryData(
+                RecipeEntry.RECIPE_ID,
+                idValue,
+                RecipeEntry.CONTENT_URI_RECIPE
+        );
+
+        // Recipes
+        if (recipeCursor.moveToFirst()) {
+            Integer recipeId = recipeCursor.getInt(RECIPE_ID);
+            String name = recipeCursor.getString(RECIPE_NAME);
+            Integer servings = recipeCursor.getInt(RECIPE_SERVINGS);
+            String image = recipeCursor.getString(RECIPE_IMAGE);
+
+            // Ingredients
+            List<Ingredient> ingredients = new ArrayList<>();
+
+            Cursor ingredientsCursor = queryData(
+                    IngredientsEntry.RECIPE_ID_KEY,
+                    idValue,
+                    IngredientsEntry.CONTENT_URI_INGREDIENTS
+            );
+
+            while (ingredientsCursor.moveToNext()) {
+                Double quantity = ingredientsCursor.getDouble(INGREDIENTS_QUANTITY);
+                String measure = ingredientsCursor.getString(INGREDIENTS_MEASURE);
+                String ingredient = ingredientsCursor.getString(INGREDIENTS_INGREDIENT);
+
+                ingredients.add(new Ingredient(quantity, measure, ingredient));
+            }
+            ingredientsCursor.close();
+
+            // Steps
+            List<Step> steps = new ArrayList<>();
+
+            Cursor stepsCursor = queryData(
+                    StepsEntry.RECIPE_ID_KEY,
+                    idValue,
+                    StepsEntry.CONTENT_URI_STEPS
+            );
+
+            while (stepsCursor.moveToNext()) {
+                Integer stepId = stepsCursor.getInt(STEPS_ID);
+                String shortDescription = stepsCursor.getString(STEPS_SHORT_DESCRIP);
+                String description = stepsCursor.getString(STEPS_DESCRIP);
+                String videoURL = stepsCursor.getString(STEPS_VIDEO);
+                String thumbnailURL = stepsCursor.getString(STEPS_THUMB);
+
+                steps.add(new Step(stepId, shortDescription, description, videoURL, thumbnailURL));
+            }
+            stepsCursor.close();
+
+            Recipe recipe = new Recipe(recipeId, name, ingredients, steps, servings, image);
+            mDatabaseItemData.postValue(recipe);
+        }
+        recipeCursor.close();
     }
 
     private Cursor queryData(String clause, String args, Uri uri) {

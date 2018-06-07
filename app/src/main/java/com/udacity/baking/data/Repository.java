@@ -44,7 +44,8 @@ public class Repository {
 
     private boolean mInitialized = false;
 
-    private Repository(DatabaseSource databaseSource, NetworkDataSource networkDataSource, AppExecutors executors) {
+    private Repository(DatabaseSource databaseSource, NetworkDataSource networkDataSource,
+                       AppExecutors executors) {
         mDatabaseSource = databaseSource;
         mNetworkDataSource = networkDataSource;
         mExecutors = executors;
@@ -52,7 +53,9 @@ public class Repository {
         initializeData();
     }
 
-    public synchronized static Repository getInstance(DatabaseSource databaseSource, NetworkDataSource networkDataSource, AppExecutors executors) {
+    public synchronized static Repository getInstance(DatabaseSource databaseSource,
+                                                      NetworkDataSource networkDataSource,
+                                                      AppExecutors executors) {
         Log.d(LOG_TAG, "Getting the repository");
         if (sInstance == null) {
             synchronized (LOCK) {
@@ -69,25 +72,24 @@ public class Repository {
         if (mInitialized) return;
         mInitialized = true;
 
-        if (mDatabaseSource.isExist(1)) {
-            mExecutors.diskIO().execute(() -> {
-                Log.e(LOG_TAG, "Data exist in DB");
-                startFetchDataFromDb();
-            });
+        if (isDataExist()) {
+            mExecutors.diskIO().execute(this::startFetchDataFromDb);
         } else {
-            Log.e(LOG_TAG, "Data fetch from network");
             startFetchDataFromNetwork();
         }
     }
 
     public LiveData<List<Recipe>> getRecipes() {
         initializeData();
-        return mDatabaseSource.getData();
+        return mDatabaseSource.getListData();
     }
 
     public LiveData<Recipe> getRecipe(int id) {
         initializeData();
-        return mDatabaseSource.getRecipe(id);
+        mExecutors.diskIO().execute(() -> {
+            mDatabaseSource.loadItemData(id);
+        });
+        return mDatabaseSource.getItemData();
     }
 
     public void updateData() {
@@ -100,7 +102,7 @@ public class Repository {
     }
 
     private void startFetchDataFromNetwork() {
-        mNetworkDataSource.fetchRecipes();
+        mNetworkDataSource.loadListData();
 
         LiveData<List<Recipe>> networkData = mNetworkDataSource.getData();
         networkData.observeForever(newForecastsFromNetwork -> {
@@ -108,16 +110,23 @@ public class Repository {
                 deleteOldDatabaseData();
                 mDatabaseSource.saveRecipes(newForecastsFromNetwork);
                 startFetchDataFromDb();
-                Log.e(LOG_TAG, "New values inserted");
             });
         });
     }
 
     private void startFetchDataFromDb() {
-        mDatabaseSource.loadData();
+        mDatabaseSource.loadListData();
     }
 
     private void deleteOldDatabaseData() {
         mDatabaseSource.deleteRecipes();
+    }
+
+    private boolean isDataExist() {
+        final boolean[] isExist = new boolean[1];
+        mExecutors.diskIO().execute(() -> {
+            isExist[0] = mDatabaseSource.isExist(1);
+        });
+        return isExist[0];
     }
 }
