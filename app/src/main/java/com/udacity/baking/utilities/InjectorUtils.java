@@ -35,8 +35,16 @@ public class InjectorUtils {
     public static Repository provideRepository(Context context) {
         AppExecutors executors = AppExecutors.getInstance();
         DatabaseSource database = DatabaseSource.getInstance(context.getApplicationContext());
-        NetworkDataSource networkDataSource = NetworkDataSource.getInstance(executors);
+        NetworkDataSource networkDataSource = NetworkDataSource.getInstance(context, executors);
         return Repository.getInstance(database, networkDataSource, executors);
+    }
+
+    public static NetworkDataSource provideNetworkDataSource(Context context) {
+        // This call to provide repository is necessary if the app starts from a service - in this
+        // case the repository will not exist unless it is specifically created.
+        provideRepository(context.getApplicationContext());
+        AppExecutors executors = AppExecutors.getInstance();
+        return NetworkDataSource.getInstance(context, executors);
     }
 
     public static AppPreferences provideAppPreferences(Context context) {

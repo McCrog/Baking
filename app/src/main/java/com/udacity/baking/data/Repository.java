@@ -50,7 +50,14 @@ public class Repository {
         mNetworkDataSource = networkDataSource;
         mExecutors = executors;
 
-        initializeData();
+        LiveData<List<Recipe>> networkData = mNetworkDataSource.getData();
+        networkData.observeForever(newForecastsFromNetwork -> {
+            mExecutors.diskIO().execute(() -> {
+                deleteOldDatabaseData();
+                mDatabaseSource.saveRecipes(newForecastsFromNetwork);
+                startFetchDataFromDb();
+            });
+        });
     }
 
     public synchronized static Repository getInstance(DatabaseSource databaseSource,
@@ -72,10 +79,12 @@ public class Repository {
         if (mInitialized) return;
         mInitialized = true;
 
+        mNetworkDataSource.scheduleRecurringFetchDataSync();
+
         if (isDataExist()) {
             mExecutors.diskIO().execute(this::startFetchDataFromDb);
         } else {
-            startFetchDataFromNetwork();
+            startFetchNetworkService();
         }
     }
 
@@ -101,17 +110,8 @@ public class Repository {
         return mNetworkDataSource.isError();
     }
 
-    private void startFetchDataFromNetwork() {
-        mNetworkDataSource.loadListData();
-
-        LiveData<List<Recipe>> networkData = mNetworkDataSource.getData();
-        networkData.observeForever(newForecastsFromNetwork -> {
-            mExecutors.diskIO().execute(() -> {
-                deleteOldDatabaseData();
-                mDatabaseSource.saveRecipes(newForecastsFromNetwork);
-                startFetchDataFromDb();
-            });
-        });
+    private void startFetchNetworkService() {
+        mNetworkDataSource.startFetchDataService();
     }
 
     private void startFetchDataFromDb() {

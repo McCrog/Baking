@@ -48,11 +48,13 @@
 
         <activity android:name=".ui.detail.RecipeDetailStepActivity"/>
 
+        <!-- This is the ContentProvider declaration -->
         <provider
             android:name=".data.database.RecipeContentProvider"
             android:authorities="com.udacity.baking"
             android:exported="true"/>
 
+        <!-- This is the Receiver declaration used in widget with AppWidgetProvider -->
         <receiver
             android:name=".widget.CollectionAppWidgetProvider" >
             <intent-filter>
@@ -62,12 +64,27 @@
                 android:resource="@xml/widget_provider_info" />
         </receiver>
 
+        <!-- This is the Service declaration used in widget with RemoteViewsService -->
         <service
             android:name=".widget.IngredientWidgetRemoteViewService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <!--This is required for immediate syncs -->
+        <service
+            android:name=".data.network.BakingSyncIntentService"
+            android:exported="false" />
+
+        <!-- This is the Service declaration used in conjunction with FirebaseJobDispatcher -->
+        <service
+            android:name=".data.network.BakingFirebaseJobService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
 
     </application>
 
