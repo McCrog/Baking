@@ -18,6 +18,7 @@ package com.udacity.baking.utilities;
 
 import android.content.Context;
 
+import com.udacity.baking.AppExecutors;
 import com.udacity.baking.data.AppPreferences;
 import com.udacity.baking.data.Repository;
 import com.udacity.baking.data.database.DatabaseSource;
@@ -32,9 +33,10 @@ import com.udacity.baking.viewmodel.list.RecipeViewModelFactory;
 
 public class InjectorUtils {
     public static Repository provideRepository(Context context) {
+        AppExecutors executors = AppExecutors.getInstance();
         DatabaseSource database = DatabaseSource.getInstance(context.getApplicationContext());
-        NetworkDataSource networkDataSource = NetworkDataSource.getInstance();
-        return Repository.getInstance(database, networkDataSource);
+        NetworkDataSource networkDataSource = NetworkDataSource.getInstance(executors);
+        return Repository.getInstance(database, networkDataSource, executors);
     }
 
     public static AppPreferences provideAppPreferences(Context context) {

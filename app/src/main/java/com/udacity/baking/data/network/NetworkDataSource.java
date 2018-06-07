@@ -21,6 +21,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.udacity.baking.AppExecutors;
 import com.udacity.baking.model.Recipe;
 
 import java.util.List;
@@ -39,25 +40,28 @@ public class NetworkDataSource {
 
     private final MutableLiveData<List<Recipe>> mDownloadedData;
     private final MutableLiveData<Boolean> mIsError;
-    private final NetworkDataApi mNetworkDataApi = NetworkDataService.getNetworkService();
+    private final NetworkDataApi mNetworkDataApi;
+    private final AppExecutors mExecutors;
 
     // For Singleton instantiation
     private static final Object LOCK = new Object();
     private static NetworkDataSource sInstance;
 
-    private NetworkDataSource() {
+    private NetworkDataSource(AppExecutors executors) {
         mDownloadedData = new MutableLiveData<>();
         mIsError = new MutableLiveData<>();
+        mNetworkDataApi = NetworkDataService.getNetworkService();
+        mExecutors = executors;
     }
 
     /**
      * Get the singleton for this class
      */
-    public static NetworkDataSource getInstance() {
+    public static NetworkDataSource getInstance(AppExecutors executors) {
         Log.d(LOG_TAG, "Getting the network data source");
         if (sInstance == null) {
             synchronized (LOCK) {
-                sInstance = new NetworkDataSource();
+                sInstance = new NetworkDataSource(executors);
                 Log.d(LOG_TAG, "Made new network data source");
             }
         }
@@ -65,21 +69,28 @@ public class NetworkDataSource {
     }
 
     public void fetchRecipes() {
-        Call<List<Recipe>> recipesCall = mNetworkDataApi.getRecipes();
+        mExecutors.networkIO().execute(() -> {
+            try {
+                Call<List<Recipe>> recipesCall = mNetworkDataApi.getRecipes();
 
-        recipesCall.enqueue(new Callback<List<Recipe>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<Recipe>> call, @NonNull Response<List<Recipe>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    mDownloadedData.postValue(response.body());
-                    mIsError.postValue(false);
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<List<Recipe>> call, @NonNull Throwable t) {
-                Log.e(LOG_TAG, t.toString());
-                mIsError.postValue(true);
+                recipesCall.enqueue(new Callback<List<Recipe>>() {
+                    @Override
+                    public void onResponse(@NonNull Call<List<Recipe>> call, @NonNull Response<List<Recipe>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            mDownloadedData.postValue(response.body());
+                            mIsError.postValue(false);
+                        }
+                    }
+        
+                    @Override
+                    public void onFailure(@NonNull Call<List<Recipe>> call, @NonNull Throwable t) {
+                        Log.e(LOG_TAG, t.toString());
+                        mIsError.postValue(true);
+                    }
+                });
+            } catch (Exception e) {
+                // Server probably invalid
+                e.printStackTrace();
             }
         });
     }

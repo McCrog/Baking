@@ -19,6 +19,7 @@ package com.udacity.baking.data;
 import android.arch.lifecycle.LiveData;
 import android.util.Log;
 
+import com.udacity.baking.AppExecutors;
 import com.udacity.baking.data.database.DatabaseSource;
 import com.udacity.baking.data.network.NetworkDataSource;
 import com.udacity.baking.model.Recipe;
@@ -39,21 +40,23 @@ public class Repository {
 
     private final DatabaseSource mDatabaseSource;
     private final NetworkDataSource mNetworkDataSource;
+    private final AppExecutors mExecutors;
 
     private boolean mInitialized = false;
 
-    private Repository(DatabaseSource databaseSource, NetworkDataSource networkDataSource) {
+    private Repository(DatabaseSource databaseSource, NetworkDataSource networkDataSource, AppExecutors executors) {
         mDatabaseSource = databaseSource;
         mNetworkDataSource = networkDataSource;
+        mExecutors = executors;
 
         initializeData();
     }
 
-    public synchronized static Repository getInstance(DatabaseSource databaseSource, NetworkDataSource networkDataSource) {
+    public synchronized static Repository getInstance(DatabaseSource databaseSource, NetworkDataSource networkDataSource, AppExecutors executors) {
         Log.d(LOG_TAG, "Getting the repository");
         if (sInstance == null) {
             synchronized (LOCK) {
-                sInstance = new Repository(databaseSource, networkDataSource);
+                sInstance = new Repository(databaseSource, networkDataSource, executors);
                 Log.d(LOG_TAG, "Made new repository");
             }
         }
@@ -67,8 +70,10 @@ public class Repository {
         mInitialized = true;
 
         if (mDatabaseSource.isExist(1)) {
-            Log.e(LOG_TAG, "Data exist in DB");
-            startFetchDataFromDb();
+            mExecutors.diskIO().execute(() -> {
+                Log.e(LOG_TAG, "Data exist in DB");
+                startFetchDataFromDb();
+            });
         } else {
             Log.e(LOG_TAG, "Data fetch from network");
             startFetchDataFromNetwork();
@@ -99,10 +104,12 @@ public class Repository {
 
         LiveData<List<Recipe>> networkData = mNetworkDataSource.getData();
         networkData.observeForever(newForecastsFromNetwork -> {
-            deleteOldDatabaseData();
-            mDatabaseSource.saveRecipes(newForecastsFromNetwork);
-            startFetchDataFromDb();
-            Log.e(LOG_TAG, "New values inserted");
+            mExecutors.diskIO().execute(() -> {
+                deleteOldDatabaseData();
+                mDatabaseSource.saveRecipes(newForecastsFromNetwork);
+                startFetchDataFromDb();
+                Log.e(LOG_TAG, "New values inserted");
+            });
         });
     }
 
