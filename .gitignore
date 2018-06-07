@@ -66,6 +66,10 @@ obj/
 ehthumbs.db
 Thumbs.db
 
+# Fastlane
+fastlane
+Gemfile*
+
 ### AndroidStudio Patch ###
 
 !/gradle/wrapper/gradle-wrapper.jar
